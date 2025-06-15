@@ -205,8 +205,11 @@ class Trainer:
         
         
         
-    def visualize_interpolation():
+    def visualize_interpolation(self):
         test_x, test_labels = next(iter(self.test_loader))
+        vae = VAE()         
+        #vae.load_state_dict(torch.load("best_model.pt"))
+        vae.to(self.device)
 
         interpolate_latent_space(
             VAE,

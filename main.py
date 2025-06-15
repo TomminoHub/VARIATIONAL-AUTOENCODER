@@ -37,9 +37,11 @@ def main():
 
     trainer = Trainer(**config)
     
-    trainer.train()
+    #trainer.train()
     
     trainer.visualize_latent_space()
+    
+    trainer.visualize_interpolation()
     
     
     
