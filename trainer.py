@@ -9,6 +9,7 @@ from datetime import datetime
 from model import VAE
 from data import get_mnist_dataloaders
 from loss import gaussian_vae_loss, beta_vae_loss
+from latent_space import plot_latent_space, interpolate_latent_space
 
 
 class Trainer:
@@ -186,3 +187,34 @@ class Trainer:
         grid = vutils.make_grid(samples.cpu(), nrow=8, pad_value=1)
         vutils.save_image(grid, os.path.join(self.output_dir, "samples_from_prior.png"))
         print("✔ Saved samples from prior.")
+        
+        
+        
+    def visualize_latent_space(self,  num_samples: int = 1000, use_pca: bool = False):
+        self.model.load_state_dict(
+            torch.load(os.path.join(self.output_dir, "best_model.pt"))
+        )
+        self.model.eval()
+        test_x, test_labels = next(iter(self.test_loader))
+        test_x = test_x[:num_samples]
+        test_labels = test_labels[:num_samples]
+
+        # (batch, 1, 28, 28) ➜ (batch, 28, 28) ➜ (batch, 1, 28, 28)
+        test_input = test_x.reshape(test_x.shape[0], 28, 28).unsqueeze(1)
+        plot_latent_space(self.model.encoder, test_input, test_labels, use_pca=use_pca)
+        
+        
+        
+    def visualize_interpolation():
+        test_x, test_labels = next(iter(self.test_loader))
+
+        interpolate_latent_space(
+            VAE,
+            test_x,
+            test_labels,
+            rows=6,          # 6 righe nella figura
+            k=12,            # 12 passi tra λ=0 e λ=1
+            img_size=28,
+            device=self.device,
+            sample=False     # più pulito per il report
+        )
