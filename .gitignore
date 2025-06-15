@@ -193,6 +193,6 @@ cython_debug/
 .cursorignore
 .cursorindexingignore
 
-experiments/
+experiments.zip
 data/
 draft.py
