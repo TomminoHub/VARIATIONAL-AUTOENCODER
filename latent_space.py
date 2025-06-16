@@ -75,7 +75,8 @@ def interpolate_latent_space(
 
     Ritorna: figura matplotlib (visualizzata e salvata).
     """
-    vae.eval()
+    #vae.load_state_dict(torch.load(r"C:\Users\Tommaso\Desktop\UNIVERSITA\ARTIFICIAL INTELLIGENCE\Generative AI\VAE_third_assignment\SAMU20-A3\experiments\gaussian\2025-06-15_07-40-51\best_model.pt", map_location=torch.device('cpu')))
+    #vae.eval()
     device = device or (next(vae.parameters()).device)
     test_x = test_x.to(device)
 
