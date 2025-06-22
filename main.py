@@ -32,12 +32,12 @@ def main():
     with open(args.config_2, "r", encoding="utf-8") as f:
         config = yaml.safe_load(f)
     config["device"] = config.get(
-        "device", "cuda" if torch.cuda.is_available() else "cpu"
+"cpu"
     )
 
     trainer = Trainer(**config)
     
-    #trainer.train()
+    trainer.train()
     
     trainer.visualize_latent_space()
     

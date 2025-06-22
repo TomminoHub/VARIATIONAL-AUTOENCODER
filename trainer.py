@@ -159,8 +159,8 @@ class Trainer:
             eps = torch.randn_like(recon_mu)
             recon = recon_mu + torch.exp(0.5 * recon_logvar) * eps
         else:
-            alpha, beta = recon_out
-            recon = torch.distributions.Beta(alpha, beta).sample()
+            rec_alpha, rec_beta = recon_out
+            recon = rec_alpha / (rec_alpha + rec_beta)
 
         recon = recon.clamp(0, 1)
         comparison = torch.cat([test_batch, recon], dim=0)
@@ -181,7 +181,7 @@ class Trainer:
             samples = gen_mu + torch.exp(0.5 * gen_logvar) * eps
         else:
             alpha, beta = decoder_out
-            samples = torch.distributions.Beta(alpha, beta).sample()
+            samples = alpha / (alpha + beta)
 
         samples = samples.clamp(0, 1)
         grid = vutils.make_grid(samples.cpu(), nrow=8, pad_value=1)
@@ -207,12 +207,12 @@ class Trainer:
         
     def visualize_interpolation(self):
         test_x, test_labels = next(iter(self.test_loader))
-        vae = VAE()         
+        vae = VAE(latent_dim=self.latent_dim, output_dist=self.output_dist)         
         #vae.load_state_dict(torch.load("best_model.pt"))
         vae.to(self.device)
 
         interpolate_latent_space(
-            VAE,
+            vae,
             test_x,
             test_labels,
             rows=6,          # 6 righe nella figura

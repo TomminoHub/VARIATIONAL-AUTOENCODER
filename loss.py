@@ -40,4 +40,26 @@ def beta_vae_loss(x, alpha, beta, mu, logvar, eps=1e-6):
     Returns:
         scalar tensor loss
     """
-    raise NotImplementedError("Beta VAE loss is not implemented")
+    # 0 ⟨ x ⟨ 1  ➊
+    x = x.clamp(eps, 1.0 - eps)
+
+    # flatten to (batch, D)
+    x   = x.view(x.size(0), -1)
+    a   = alpha.view(x.size(0), -1) + eps     # make sure >0
+    b   = beta.view(x.size(0), -1)  + eps
+
+    # log-normaliser  log B(a,b)
+    log_B = torch.lgamma(a) + torch.lgamma(b) - torch.lgamma(a + b)
+
+    # per-example log-likelihood  log p(x|z)
+    log_px_z = ((a - 1) * torch.log(x) +
+                (b - 1) * torch.log(1.0 - x) -
+                log_B).sum(dim=1)            # sum over pixels
+
+    # reconstruction part of –ELBO
+    recon_term = -log_px_z.mean()
+
+    # KL between q(z|x) and p(z) (same as Gaussian task)
+    kl_term = -0.5 * (1 + logvar - mu.pow(2) - logvar.exp()).sum(dim=1).mean()
+
+    return recon_term + kl_term

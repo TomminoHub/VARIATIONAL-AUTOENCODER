@@ -62,7 +62,7 @@ class Decoder(nn.Module):
             return mu, logvar
 
         elif self.output_dist == 'beta':
-            eps = 1e-6
+            eps = 1
             alpha = F.softplus(self.out_alpha(x)) + eps
             beta = F.softplus(self.out_beta(x)) + eps
             return alpha, beta
