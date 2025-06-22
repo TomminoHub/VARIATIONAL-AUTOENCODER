@@ -6,7 +6,7 @@ import torchvision.utils as vutils
 import matplotlib.pyplot as plt
 from datetime import datetime
 
-from model import VAE
+from model import VAE, Encoder
 from data import get_mnist_dataloaders
 from loss import gaussian_vae_loss, beta_vae_loss
 from latent_space import plot_latent_space, interpolate_latent_space
@@ -137,7 +137,7 @@ class Trainer:
         plt.close()
 
         print(
-            f"✅ Training complete. Best model at epoch {best_epoch+1} (Val ELBO = {best_val_elbo:.2f})"
+            f"Training complete. Best model at epoch {best_epoch+1} (Val ELBO = {best_val_elbo:.2f})"
         )
 
         self.model.load_state_dict(
@@ -191,33 +191,50 @@ class Trainer:
         
         
     def visualize_latent_space(self,  num_samples: int = 1000, use_pca: bool = False):
-        self.model.load_state_dict(
-            torch.load(os.path.join(self.output_dir, "best_model.pt"))
-        )
+        
+        if self.latent_dim > 2:
+            self.model.load_state_dict(
+                torch.load(os.path.join(self.output_dir, r"C:\Users\Tommaso\Desktop\UNIVERSITA\ARTIFICIAL INTELLIGENCE\Generative AI\VAE_third_assignment\SAMU20-A3\experiments\gaussian\2025-06-15_07-40-51\best_model.pt"), map_location=torch.device('cpu'))
+            )
+            use_pca = True
+        else:
+            self.model.load_state_dict(
+                torch.load(os.path.join(self.output_dir, r"path to trained model with 2 laten space dim"), map_location=torch.device('cpu'))
+            )
         self.model.eval()
+        '''
         test_x, test_labels = next(iter(self.test_loader))
         test_x = test_x[:num_samples]
         test_labels = test_labels[:num_samples]
 
         # (batch, 1, 28, 28) ➜ (batch, 28, 28) ➜ (batch, 1, 28, 28)
         test_input = test_x.reshape(test_x.shape[0], 28, 28).unsqueeze(1)
-        plot_latent_space(self.model.encoder, test_input, test_labels, use_pca=use_pca)
+        '''
+        dataset = self.test_loader.dataset  # accede direttamente al dataset completo
+        test_x = torch.stack([dataset[i][0] for i in range(num_samples)])  # shape [1000, 1, 28, 28]
+        test_labels = torch.tensor([dataset[i][1] for i in range(num_samples)])  # shape [1000]
+        plot_latent_space(self.model.encoder, test_x, test_labels, use_pca=use_pca)
         
         
         
     def visualize_interpolation(self):
         test_x, test_labels = next(iter(self.test_loader))
-        vae = VAE(latent_dim=self.latent_dim, output_dist=self.output_dist)         
-        #vae.load_state_dict(torch.load("best_model.pt"))
-        vae.to(self.device)
-
+        
+        if self.latent_dim > 2:
+            self.model.load_state_dict(
+                torch.load(os.path.join(self.output_dir, r"C:\Users\Tommaso\Desktop\UNIVERSITA\ARTIFICIAL INTELLIGENCE\Generative AI\VAE_third_assignment\SAMU20-A3\experiments\gaussian\2025-06-15_07-40-51\best_model.pt"), map_location=torch.device('cpu'))
+            )
+        else:
+            self.model.load_state_dict(
+                torch.load(os.path.join(self.output_dir, r"path to trained model with 2 laten space dim"), map_location=torch.device('cpu'))
+            )
+        self.model.eval()
+        test_x, test_labels = next(iter(self.test_loader))
+    
         interpolate_latent_space(
-            vae,
+            self.model,
             test_x,
             test_labels,
-            rows=6,          # 6 righe nella figura
-            k=12,            # 12 passi tra λ=0 e λ=1
-            img_size=28,
             device=self.device,
-            sample=False     # più pulito per il report
+            sample=False     
         )

@@ -10,7 +10,7 @@ from model import Encoder, VAE
 
 def main():
     
-    '''
+    
     parser = argparse.ArgumentParser()
     parser.add_argument("config", type=str, help="Path to config.yaml")
     args = parser.parse_args()
@@ -22,26 +22,12 @@ def main():
     )
 
     trainer = Trainer(**config)
-    trainer.train()
-    '''
-    
-    parser = argparse.ArgumentParser()
-    parser.add_argument("config_2", type=str, help="Path to config_2.yaml")
-    args = parser.parse_args()
-
-    with open(args.config_2, "r", encoding="utf-8") as f:
-        config = yaml.safe_load(f)
-    config["device"] = config.get(
-"cpu"
-    )
-
-    trainer = Trainer(**config)
     
     trainer.train()
     
     trainer.visualize_latent_space()
     
-    trainer.visualize_interpolation()
+    #trainer.visualize_interpolation()
     
     
     
