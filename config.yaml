@@ -4,5 +4,5 @@ epochs: 50
 batch_size: 128 # should be >= 32
 patience: 10
 lr: 0.001  # AdamW
-device: cuda
+device: cpu
 overfit: False

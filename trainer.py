@@ -248,7 +248,7 @@ class Trainer:
         and saves it as task4a_recon_grid.png
         """
         self.model.load_state_dict(
-                torch.load(os.path.join(self.output_dir, r"C:\Users\20212830\OneDrive - TU Eindhoven\Documents\TUe\2AMU20 (Generative AI Models)\SAMU20-A3\experiments\beta\2025-06-22_19-51-03\best_model.pt"), map_location=torch.device('cpu'))
+                torch.load(os.path.join(self.output_dir, r"C:\Users\20212830\OneDrive - TU Eindhoven\Documents\TUe\2AMU20 (Generative AI Models)\SAMU20-A3\experiments\beta\BEST\best_model.pt"), map_location=torch.device('cpu'))
             )
         self.model.eval()
         data_loader = torch.utils.data.DataLoader(
@@ -297,7 +297,7 @@ class Trainer:
         Output grid: original | masked input | completion for each row.
         """
         self.model.load_state_dict(
-                torch.load(os.path.join(self.output_dir, r"C:\Users\20212830\OneDrive - TU Eindhoven\Documents\TUe\2AMU20 (Generative AI Models)\SAMU20-A3\experiments\beta\2025-06-22_19-51-03\best_model.pt"), map_location=torch.device('cpu'))
+                torch.load(os.path.join(self.output_dir, r"C:\Users\20212830\OneDrive - TU Eindhoven\Documents\TUe\2AMU20 (Generative AI Models)\SAMU20-A3\experiments\beta\BEST\best_model.pt"), map_location=torch.device('cpu'))
             )
         self.model.eval()
         loader = torch.utils.data.DataLoader(
