@@ -73,9 +73,8 @@ def decoder_mean_image(decoder_output, output_distribution):
 def optimise_latent_vector(
     model,
     target_image,
-    steps=8000,
+    steps=2000,
     learning_rate=5e-2,
-    prior_weight=1e-4
 ):
     """
     Find a latent vector z* that makes the decoder's output look like
@@ -108,11 +107,11 @@ def optimise_latent_vector(
         # −log p(z)  for a standard normal prior N(0,I)
         neg_log_prior = 0.5 * latent_vector.pow(2).sum()
 
-        loss = neg_log_likelihood + prior_weight * neg_log_prior
+        loss = neg_log_likelihood + neg_log_prior
         loss.backward()
         optimiser.step()
 
-    # decode one last time (no gradients needed now)
+    # decode  last time 
     with torch.no_grad():
         reconstructed = decoder_mean_image(
             model.decoder(latent_vector), model.output_dist
@@ -126,7 +125,6 @@ def inpaint_right_half(
     left_half_image,
     steps=2000,
     learning_rate=5e-2,
-    prior_weight=1
 ):
     """
     Given an image where the right half is not present, infer a latent vector
@@ -160,7 +158,7 @@ def inpaint_right_half(
 
 
         neg_log_prior = 0.5 * latent_vector.pow(2).sum()
-        loss = neg_log_likelihood + prior_weight * neg_log_prior
+        loss = neg_log_likelihood + neg_log_prior
         loss.backward()
         optimiser.step()
 
