@@ -3,6 +3,7 @@ import torch
 import torch.optim as optim
 import yaml
 import torchvision.utils as vutils
+import torchvision
 import matplotlib.pyplot as plt
 from datetime import datetime
 
@@ -10,6 +11,7 @@ from model import VAE, Encoder
 from data import get_mnist_dataloaders
 from loss import gaussian_vae_loss, beta_vae_loss
 from latent_space import plot_latent_space, interpolate_latent_space
+from decoder_inference import optimise_latent_vector, inpaint_right_half, decoder_mean_image
 
 
 class Trainer:
@@ -238,3 +240,89 @@ class Trainer:
             device=self.device,
             sample=False     
         )
+    # Task 4 utilities
+    def task4a_three_column_grid(self, images_to_do: int = 4):
+        """
+        Creates the 3-column figure for 4a
+        with the original | decoder-only reconstruction  | encoder reconstruction
+        and saves it as task4a_recon_grid.png
+        """
+        self.model.load_state_dict(
+                torch.load(os.path.join(self.output_dir, r"C:\Users\20212830\OneDrive - TU Eindhoven\Documents\TUe\2AMU20 (Generative AI Models)\SAMU20-A3\experiments\beta\2025-06-22_19-51-03\best_model.pt"), map_location=torch.device('cpu'))
+            )
+        self.model.eval()
+        data_loader = torch.utils.data.DataLoader(
+            self.test_loader.dataset, batch_size=1, shuffle=True
+        )
+
+        rows = []
+        for i, (single_image, _) in enumerate(data_loader):
+            if i >= images_to_do:
+                break
+
+            single_image = single_image.to(self.device)
+
+            decoder_only_recon, _ = optimise_latent_vector(
+                self.model, single_image
+            )
+
+            with torch.no_grad():
+                mu, logvar = self.model.encoder(single_image)
+                latent_code = mu
+                decoder_output = self.model.decoder(latent_code)
+                encoder_recon = decoder_mean_image(
+                    decoder_output, self.model.output_dist
+                )
+
+            row = torch.cat(
+                [single_image.cpu(),
+                decoder_only_recon.cpu().unsqueeze(0),
+                encoder_recon.cpu()], dim=0
+            )
+            rows.append(row)
+
+        grid = torch.cat(rows, dim=0)
+
+        save_path = os.path.join(self.output_dir, "task4a_recon_grid.png")
+        torchvision.utils.save_image(grid, save_path,
+                                    nrow=3,           # three columns per row
+                                    normalize=True)
+        print(f"reconstruction grid saved to {save_path}")
+
+
+    def task4_inpaint_right_half(self, images_to_do=4):
+        """
+        Mask the right half of a few images, optimise z on the visible
+        left half, then let the decoder complete the missing pixels.
+        Output grid: original | masked input | completion for each row.
+        """
+        self.model.load_state_dict(
+                torch.load(os.path.join(self.output_dir, r"C:\Users\20212830\OneDrive - TU Eindhoven\Documents\TUe\2AMU20 (Generative AI Models)\SAMU20-A3\experiments\beta\2025-06-22_19-51-03\best_model.pt"), map_location=torch.device('cpu'))
+            )
+        self.model.eval()
+        loader = torch.utils.data.DataLoader(
+            self.test_loader.dataset, batch_size=1, shuffle=True
+        )
+
+        rows = []
+        for i, (single_image, _) in enumerate(loader):
+            if i >= images_to_do:
+                break
+            single_image = single_image.to(self.device)
+
+            # make a copy whose right half is zero
+            masked = single_image.clone()
+            masked[..., :, masked.shape[-1] // 2 :] = 0
+
+            completed, _ = inpaint_right_half(self.model, masked)
+
+            rows.append(torch.cat(
+                [single_image.cpu(),
+                masked.cpu(),
+                completed.cpu().unsqueeze(0)], dim=0))
+
+        grid = torch.cat(rows, dim=0)
+        save_path = os.path.join(self.output_dir, "task4_inpaint_right_half.png")
+        torchvision.utils.save_image(grid, save_path,
+                                    nrow=3, normalize=True)
+        print(f"image saved to {save_path}")

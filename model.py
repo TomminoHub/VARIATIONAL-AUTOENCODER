@@ -73,7 +73,7 @@ class VAE(nn.Module):
         self.output_dist = output_dist.lower()
         self.encoder = Encoder(latent_dim)
         self.decoder = Decoder(latent_dim, output_dist)
-
+        self.latent_dim = latent_dim
     def reparameterize(self, mu, logvar):
         std = torch.exp(0.5 * logvar)
         eps = torch.randn_like(std)

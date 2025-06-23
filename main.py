@@ -25,11 +25,13 @@ def main():
     
     trainer.train()
     
-    trainer.visualize_latent_space()
+    #trainer.visualize_latent_space()
     
     #trainer.visualize_interpolation()
     
-    
+    # ONLY FOR TASK 4
+    #trainer.task4a_three_column_grid()    
+    #trainer.task4_inpaint_right_half()
     
 
 
