@@ -40,7 +40,7 @@ def beta_vae_loss(x, alpha, beta, mu, logvar, eps=1e-6):
     Returns:
         scalar tensor loss
     """
-    # 0 ⟨ x ⟨ 1  ➊
+
     x = x.clamp(eps, 1.0 - eps)
 
     # flatten to (batch, D)

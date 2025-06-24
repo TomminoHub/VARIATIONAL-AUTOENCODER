@@ -50,7 +50,6 @@ class Trainer:
             self.train_loader = [(single_batch[0], single_batch[1])]
             self.val_loader = self.train_loader
             self.test_loader = self.train_loader
-            print("🔁 Overfit mode enabled.")
         else:
             self.train_loader, self.val_loader, self.test_loader = (
                 get_mnist_dataloaders(batch_size=self.batch_size)
@@ -113,7 +112,7 @@ class Trainer:
             val_elbos.append(val_elbo)
 
             print(
-                f"Epoch {epoch+1}: Train ELBO = {train_elbo:.2f}, Val ELBO = {val_elbo:.2f}"
+                f"Epoch {epoch+1}: Train ELBO = {train_elbo}, Val ELBO = {val_elbo}"
             )
 
             if val_elbo > best_val_elbo:
@@ -139,7 +138,7 @@ class Trainer:
         plt.close()
 
         print(
-            f"Training complete. Best model at epoch {best_epoch+1} (Val ELBO = {best_val_elbo:.2f})"
+            f"Training complete. Best model at epoch {best_epoch+1} (Val ELBO = {best_val_elbo})"
         )
 
         self.model.load_state_dict(
@@ -170,7 +169,6 @@ class Trainer:
         vutils.save_image(
             grid, os.path.join(self.output_dir, "test_reconstructions.png")
         )
-        print("✔ Saved test reconstructions.")
 
         # Sampling from prior
         z_dim = mu.shape[1]
@@ -188,7 +186,6 @@ class Trainer:
         samples = samples.clamp(0, 1)
         grid = vutils.make_grid(samples.cpu(), nrow=8, pad_value=1)
         vutils.save_image(grid, os.path.join(self.output_dir, "samples_from_prior.png"))
-        print("✔ Saved samples from prior.")
         
         
         
@@ -209,7 +206,7 @@ class Trainer:
         test_x = test_x[:num_samples]
         test_labels = test_labels[:num_samples]
 
-        # (batch, 1, 28, 28) ➜ (batch, 28, 28) ➜ (batch, 1, 28, 28)
+        # (batch, 1, 28, 28) -> (batch, 28, 28) -> (batch, 1, 28, 28)
         test_input = test_x.reshape(test_x.shape[0], 28, 28).unsqueeze(1)
         '''
         dataset = self.test_loader.dataset  # accede direttamente al dataset completo

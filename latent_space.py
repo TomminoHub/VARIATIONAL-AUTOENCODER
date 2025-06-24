@@ -12,7 +12,7 @@ def plot_latent_space(
     test_x: Tensor,
     test_labels: Tensor,
     use_pca: bool = False,
-    sample: bool = False,        # se True campiona, altrimenti usa μ
+    sample: bool = False,        # se true campiona, altrimenti usa mu
 
 ):
     """
@@ -80,7 +80,7 @@ def interpolate_latent_space(
     device = device or (next(vae.parameters()).device)
     test_x = test_x.to(device)
 
-    # λ uniformemente distribuiti su [0,1]
+    # lambda uniformemente distribuiti su [0,1]
     lambdas = torch.linspace(0.0, 1.0, steps=k, device=device)
 
     # buffer per tutte le immagini: (rows*k, 1, img_size, img_size)
@@ -113,11 +113,11 @@ def interpolate_latent_space(
                     z_i = mu_i
                     z_j = mu_j
 
-            # 3) interpolazione lineare per ogni λ
+            # 3) interpolazione lineare per ogni lambda
             for lam in lambdas:
                 z_lam = lam * z_i + (1.0 - lam) * z_j   # shape (1, latent_dim)
 
-                # 4) decodifica: generazione di x_λ
+                # 4) decodifica: generazione di x_lambda
                 decoder_out = vae.decoder(z_lam)
 
                 if vae.output_dist == "gaussian":
@@ -142,10 +142,9 @@ def interpolate_latent_space(
     plt.figure(figsize=(k, rows))
     plt.imshow(grid.permute(1, 2, 0).cpu().numpy(), cmap="gray")
     plt.axis("off")
-    plt.title("Latent‑space interpolation (λ da 0→1 da sinistra a destra)")
+    plt.title("Latent‑space interpolation (lambda da 0 -> 1 da sinistra a destra)")
     plt.tight_layout()
     plt.show()
 
     # opzionale: salva
     vutils.save_image(grid, "latent_interpolations.png")
-    print("✔  Interpolazione salvata in latent_interpolations.png")

@@ -10,7 +10,7 @@ import torch.nn.functional as F
 
 def gaussian_negative_log_likelihood(x_true, mean, log_variance):
     """
-    Pixel-wise −log p(x|z) for the Gaussian decoder.
+    per Pixel −log p(x|z) for the Gaussian decoder.
     """
     variance = log_variance.exp()
     nll = 0.5 * ((x_true - mean) ** 2 / variance + log_variance
@@ -19,7 +19,7 @@ def gaussian_negative_log_likelihood(x_true, mean, log_variance):
 
 def beta_negative_log_likelihood(x_true, alpha, beta, epsilon=1e-6):
     """
-    Pixel-wise −log p(x|z) for the Beta decoder.
+    per Pixel −log p(x|z) for the Beta decoder.
     """
     x_clamped = x_true.clamp(epsilon, 1.0 - epsilon)
     log_B = (torch.lgamma(alpha) + torch.lgamma(beta)
@@ -38,7 +38,7 @@ def masked_gaussian_negative_log_likelihood(x_true, mean, log_variance,
         (x_true - mean) ** 2 / variance + log_variance
         + torch.log(torch.tensor(2.0 * torch.pi, device=x_true.device))
     )
-    nll = nll * pixel_mask                    # ignore right half
+    nll = nll * pixel_mask  # ignore right half
     return nll.view(nll.size(0), -1).sum(dim=1)
 
 
@@ -57,10 +57,7 @@ def masked_beta_negative_log_likelihood(x_true, alpha, beta,
 
 @torch.no_grad()
 def decoder_mean_image(decoder_output, output_distribution):
-    """
-    Given whatever the decoder returns, turn it into a deterministic
-    [0,1] image that is easy to visualise.
-    """
+
     if output_distribution == "gaussian":
         mean, _ = decoder_output
         return torch.sigmoid(mean)     # convert logits to probability
@@ -77,8 +74,8 @@ def optimise_latent_vector(
     learning_rate=5e-2,
 ):
     """
-    Find a latent vector z* that makes the decoder's output look like
-    `target_image`.   The encoder is not used.
+    Find a latent vector that makes the decoder's output look like
+    target_image. The encoder is not used.
     Returns (reconstructed_image, best_z).
     """
     device = target_image.device
@@ -127,7 +124,7 @@ def inpaint_right_half(
     learning_rate=5e-2,
 ):
     """
-    Given an image where the right half is not present, infer a latent vector
+    Given an image where the right half is not present, get a latent vector
     using the left half, then have the decoder fill in the right.
     Returns (completed_image, best_z).
     """

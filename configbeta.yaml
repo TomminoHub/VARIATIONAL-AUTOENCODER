@@ -1,8 +1,8 @@
-output_dist: beta  # Options: gaussian, beta
+output_dist: beta  # gaussia or beta
 latent_dim: 2
 epochs: 30
 batch_size: 128 
 patience: 10
-lr: 0.001  # AdamW
+lr: 0.001  # Adam
 device: cpu
 overfit: False

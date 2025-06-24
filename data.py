@@ -3,7 +3,7 @@ from torchvision import datasets, transforms
 from torch.utils.data import DataLoader, random_split
 
 def get_mnist_dataloaders(batch_size=128, data_dir='./data'):
-    # Transform: convert to tensor and normalize to [0, 1]
+    # converts to tensor and normalize to [0, 1]
     transform = transforms.Compose([
         transforms.ToTensor(),
     ])
